@@ -1,0 +1,14 @@
+language: python
+
+python:
+  - "3.6"
+# command to install dependencies
+install:
+  - pip install smartcar
+# command to run tests
+script:
+  - python request.py
+  - python app.py
+
+notifications:
+  email: false
