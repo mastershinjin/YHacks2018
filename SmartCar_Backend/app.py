@@ -57,12 +57,25 @@ def location():
     print(smartcar.get_vehicle_ids(access['access_token']));
     vehicleID = smartcar.get_vehicle_ids(access['access_token'])['vehicles'][0];
     vehicle = smartcar.Vehicle(vehicleID, access['access_token']);
+
     print(vehicle.location());
+    new_access = client.exchange_refresh_token(access['refresh_token'])
+    print(new_access);
     return jsonify(vehicle.location());
 
 
+@app.route('/cars', methods=['GET'])
+def cars():
+    global access
 
+    userVehicles = smartcar.get_vehicle_ids(access['access_token'])['vehicles'];
 
+    list = []
+    for vehicleID in userVehicles:
+        vehicle = smartcar.Vehicle(vehicleID, access['access_token']);
+        list.append(vehicle)
+
+    return list
 
 
 
