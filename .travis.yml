@@ -9,8 +9,8 @@ python:
   - "3.6"
   - "3.7"  # 3.7 development branch
 # command to install dependencies
-#install:
- # - pip install -r requirements.txt
+install:
+  - pip install smartcar
 # command to run tests
 #script:
  # - pytest
