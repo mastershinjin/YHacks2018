@@ -6,8 +6,9 @@ python:
 install:
   - pip install smartcar
 # command to run tests
-#script:
- # - pytest
+script:
+  - request
+  - app
 
 notifications:
   email: false
