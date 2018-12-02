@@ -63,8 +63,5 @@ def get_user_car_info(FBid):
        if 'facebookid' == FBid:
            return row[1]
 
-
-
-
-
-
+c.close()
+conn.close()
