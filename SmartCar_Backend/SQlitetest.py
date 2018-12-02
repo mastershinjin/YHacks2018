@@ -12,11 +12,12 @@ def data_entry(firstname, lastname, userId, accesstoken, expdate):
     with conn:
         c.execute("INSERT INTO accessUser VALUES(:firstName, :lastName, :facebookID, :smartcarToken, :expDate)", {'firstName': firstname, 'lastName': lastname, 'facebookID': userId, 'smartcarToken': accesstoken, 'expDate': expdate})
         conn.commit()
-        c.close()
-        #conn.close()
 
-# create_table()
-# data_entry()
+create_table()
+data_entry(firstname, lastname, userId, accesstoken, expdate)
+
+c.close()
+conn.close()
 
 
 
