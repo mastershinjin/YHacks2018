@@ -1,5 +1,6 @@
 import sqlite3
 import datetime as dt
+import smartcar
 
 conn = sqlite3.connect("users.db")
 c = conn.cursor()
@@ -31,7 +32,7 @@ def create_table():
 #                 daysCount += 1
 #             currentDaysList[1] = str ##
 
-def data_entry():
+def data_entry(firstname, lastname, userId, accesstoken, expdate):
     with conn:
         firstname = #get first name here (str)
         lastname = #get last name here (str)
