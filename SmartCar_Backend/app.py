@@ -47,7 +47,7 @@ def callback():
     return jsonify(access)
 
 
-#get the vehicle location in lat + long [json]
+#get the vehicle location in lat + long [json], also check boundaries
 
 @app.route('/location', methods=['GET'])
 def location():
@@ -76,6 +76,21 @@ def cars():
         list.append(vehicle)
 
     return list
+
+@app.route('/unlockAccess', methods=['GET'])
+def unlockAccess(userAllowed, carID):
+    if(userAllowed == True):
+        vehicle = smartcar.Vehicle(carID, access['access_token']);
+        vehicle.unlock() #unlocks vehicle
+    return userAllowed;
+
+@app.route('/lockAccess', methods=['GET'])
+def lockAccess(userAllowed, carID):
+    if (userAllowed == True):
+        vehicle = smartcar.Vehicle(carID, access['access_token']);
+        vehicle.lock() #locks vehicle
+    return userAllowed;
+
 
 
 
