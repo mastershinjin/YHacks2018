@@ -37,6 +37,7 @@ def data_entry(firstname, lastname, facebookid, accesstoken, expdate):
             c.execute("INSERT INTO accessUser VALUES(:firstName, :lastName, :facebookID, :smartcarToken, :expDate)", {'firstName': firstname, 'lastName': lastname, 'facebookID': facebookid, 'smartcarToken': accesstoken, 'expDate': expdate})
             conn.commit()
 
+#
 c.close()
 conn.close()
 
