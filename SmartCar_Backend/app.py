@@ -75,12 +75,12 @@ def cars():
 
     userVehicles = smartcar.get_vehicle_ids(access['access_token'])['vehicles'];
 
-    list = []
+    cars = []
     for vehicleID in userVehicles:
         vehicle = smartcar.Vehicle(vehicleID, access['access_token']);
-        list.append(vehicle.info())
+        cars.append(vehicle.info())
 
-    return list
+    return jsonify(cars)
 
 @app.route('/unlockAccess', methods=['GET'])
 def unlockAccess(userAllowed, carID):
@@ -124,7 +124,7 @@ def addUserToDatabase(firstname, lastname, facebookID, carId):
     SQlitetest.data_entry_user_info(firstname, lastname, facebookID, access['access_token'],
                                     access['refresh_token_expiration'])
 
-@app.route('getUserInfo', methods=['GET'])
+@app.route('/getUserInfo', methods=['GET'])
 def getUserInfo(facebookID):
     return SQlitetest.user_info(facebookID) #JSON including user firstname, lastname, etc...
 
