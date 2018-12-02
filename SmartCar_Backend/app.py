@@ -3,6 +3,7 @@ CLIENT_SECRET = '57479324-a7d4-4257-b040-52840d31d553' #secret key generated... 
 import smartcar
 from flask import Flask, request, jsonify
 import sys, os
+import time
 
 file_dir = os.path.dirname("/Users/robertyang/PycharmProjects/backend/SmartCar_Backend/SQlitetest.py")
 sys.path.append(file_dir)
@@ -85,6 +86,8 @@ def cars():
 def unlockAccess(userAllowed, carID):
     if(userAllowed == True):
         vehicle = smartcar.Vehicle(carID, access['access_token']);
+        # for demonstration purposes wait 5 sec (ideally person would arrive near car location and unlock:
+        time.sleep(5)
         vehicle.unlock() #unlocks vehicle
     return userAllowed;
 
@@ -92,14 +95,42 @@ def unlockAccess(userAllowed, carID):
 def lockAccess(userAllowed, carID):
     if (userAllowed == True):
         vehicle = smartcar.Vehicle(carID, access['access_token']);
+        #for demonstration purposes wait 5 sec (ideally person would arrive near car location and unlock:
+        time.sleep(5)
+
         vehicle.lock() #locks vehicle
     return userAllowed;
 
+#get's car info for a user based on the facebookID
+@app.route('/getUserCar', methods=['GET'])
+def getUserCar(facebookID):
+    if(not SQlitetest.check_new_user(facebookID)):
+        return SQlitetest.get_user_car_info(facebookID) #returns the JSON object
+    else:
+        return False;
 
-@app.route('/addNewUser', methods=['GET'])
-def addNewUser(firstname, lastname, facebookId, access_token):
+
+
+#need to choose a car...
+@app.route('/addUserToDatabase', methods=['GET'])
+def addUserToDatabase(firstname, lastname, facebookID, carId):
+    #for now defining carID to just be the first car:
     global access
-    return
+    carId = smartcar.get_vehicle_ids(access['access_token'])['vehicles'][0];
+    # first table:
+    SQlitetest.car_data_entry(facebookID, smartcar.Vehicle(carId, access['access_token']))
+
+    #second table:
+    SQlitetest.data_entry_user_info(firstname, lastname, facebookID, access['access_token'],
+                                    access['refresh_token_expiration'])
+
+@app.route('getUserInfo', methods=['GET'])
+def getUserInfo(facebookID):
+    return SQlitetest.user_info(facebookID) #JSON including user firstname, lastname, etc...
+
+
+
+
 
 """
 def get_fresh_access():
