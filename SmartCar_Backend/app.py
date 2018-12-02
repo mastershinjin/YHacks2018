@@ -1,9 +1,13 @@
 CLIENT_ID = '6e0a0f53-5e65-4dbf-bab0-087f0d1d48fe'
 CLIENT_SECRET = '57479324-a7d4-4257-b040-52840d31d553' #secret key generated... don't lose
-
 import smartcar
 from flask import Flask, request, jsonify
+import sys, os
 
+file_dir = os.path.dirname("/Users/robertyang/PycharmProjects/backend/SmartCar_Backend/SQlitetest.py")
+sys.path.append(file_dir)
+
+import SQlitetest
 
 access = None;
 
@@ -73,7 +77,7 @@ def cars():
     list = []
     for vehicleID in userVehicles:
         vehicle = smartcar.Vehicle(vehicleID, access['access_token']);
-        list.append(vehicle)
+        list.append(vehicle.info())
 
     return list
 
@@ -92,7 +96,10 @@ def lockAccess(userAllowed, carID):
     return userAllowed;
 
 
-
+@app.route('/addNewUser', methods=['GET'])
+def addNewUser(firstname, lastname, facebookId, access_token):
+    global access
+    return
 
 """
 def get_fresh_access():
