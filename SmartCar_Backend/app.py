@@ -1,106 +1,89 @@
-CLIENT_ID = '6e0a0f53-5e65-4dbf-bab0-087f0d1d48fe'
-CLIENT_SECRET = '57479324-a7d4-4257-b040-52840d31d553' #secret key generated... don't lose
 import smartcar
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+
 import sys, os
 import time
+
+import SQlitetest
 
 file_dir = os.path.dirname("/Users/robertyang/PycharmProjects/backend/SmartCar_Backend/SQlitetest.py")
 sys.path.append(file_dir)
 
-import SQlitetest
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_pyfile('config.py')
+CORS(app)
 
-access = None;
-
-# 1. Create an instance of Smartcar's client.
 client = smartcar.AuthClient(
-    client_id=CLIENT_ID,
-    client_secret=CLIENT_SECRET,
-    redirect_uri='http://localhost:8000/callback', #how do we add multiple redirect URIs?
-    scope=['read_vehicle_info', 'read_location', 'control_security'],
-    test_mode = True
+    client_id=app.config["CLIENT_ID"],
+    client_secret=app.config["CLIENT_SECRET"],
+    redirect_uri=app.config["REDIRECT_URI"],
+    test_mode=True,
 )
 
-# 2. Create a new webserver with the Flask framework.
-app = Flask(__name__)
+access = None
 
-# 3. Create a page with a 'Connect Car' button.
-@app.route('/', methods=['GET'])
-def index():
-    auth_url = client.get_auth_url(force=True)
-    return '''
-        <h1>Hello, World!</h1>
-        <a href=%s>
-          <button>Connect Car</button>
-        </a>
-    ''' % auth_url # generate the url using the js sdk
-
-# 4. On an HTTP GET to our callback will exchange our OAuth Auth Code
-#    for an Access Token and log it out.
-
-
-@app.route('/callback', methods=['GET'])
-def callback():
+# htpp://localhost:8000/exchange?code=<authorization_code>
+@app.route('/exchange', methods=['GET'])
+def exchange():
     code = request.args.get('code')
     global access
     access = client.exchange_code(code)
 
-    # Log the access token response
-    print(access)
+    return '', 200
 
-    # Respond with a success status to browser
-    return jsonify(access)
-
-
-#get the vehicle location in lat + long [json], also check boundaries
-
-@app.route('/location', methods=['GET'])
-def location():
-
+# htpp://localhost:8000/vehicles
+@app.route('/vehicles', methods=['GET'])
+def vehicles():
     global access
-
-    print(smartcar.get_vehicle_ids(access['access_token']));
-    vehicleID = smartcar.get_vehicle_ids(access['access_token'])['vehicles'][0];
-    vehicle = smartcar.Vehicle(vehicleID, access['access_token']);
-
-    print(vehicle.location());
-    new_access = client.exchange_refresh_token(access['refresh_token'])
-    print(new_access);
-    return jsonify(vehicle.location());
-
-
-@app.route('/cars', methods=['GET'])
-def cars():
-    global access
-
-    userVehicles = smartcar.get_vehicle_ids(access['access_token'])['vehicles'];
-
+    vehicle_ids = smartcar.get_vehicle_ids(access['access_token'])['vehicles']
     cars = []
-    for vehicleID in userVehicles:
-        vehicle = smartcar.Vehicle(vehicleID, access['access_token']);
+
+    for id in vehicle_ids:
+        vehicle = smartcar.Vehicle(id, access['access_token']);
         cars.append(vehicle.info())
 
     return jsonify(cars)
 
-@app.route('/unlockAccess', methods=['GET'])
-def unlockAccess(userAllowed, carID):
-    if(userAllowed == True):
-        vehicle = smartcar.Vehicle(carID, access['access_token']);
-        # for demonstration purposes wait 5 sec (ideally person would arrive near car location and unlock:
-        time.sleep(5)
-        vehicle.unlock() #unlocks vehicle
-    return userAllowed;
+# htpp://localhost:8000/vehicle/<id>
+@app.route('/vehicle/<vehicle_id>', methods=['GET'])
+def vehicle(vehicle_id):
+    global access
+    vehicle = smartcar.Vehicle(vehicle_id, access['access_token'])
+    info = vehicle.info()
+    print(info)
 
-@app.route('/lockAccess', methods=['GET'])
-def lockAccess(userAllowed, carID):
-    if (userAllowed == True):
-        vehicle = smartcar.Vehicle(carID, access['access_token']);
-        #for demonstration purposes wait 5 sec (ideally person would arrive near car location and unlock:
-        time.sleep(5)
+    return jsonify(info)
 
-        vehicle.lock() #locks vehicle
-    return userAllowed;
+# htpp://localhost:8000/vehicle/<id>/unlock
+@app.route('/vehicle/<vehicle_id>/unlock', methods=['GET'])
+def unlock(vehicle_id):
+    global access
+    vehicle = smartcar.Vehicle(vehicle_id, access['access_token'])
+    response = vehicle.unlock()
 
+    return jsonify(response.status) # 200 if succesful
+
+# htpp://localhost:8000/vehicle/<id>/lock
+@app.route('/vehicle/<vehicle_id>/lock', methods=['GET'])
+def unlock(vehicle_id):
+    global access
+    vehicle = smartcar.Vehicle(vehicle_id, access['access_token'])
+    response = vehicle.lock()
+
+    return jsonify(response.status) # 200 if succesful
+
+# htpp://localhost:8000/vehicle/<id>/location
+@app.route('/vehicle/<vehicle_id>/location', methods=['GET'])
+def location(vehicle_id):
+    global access
+    vehicle = smartcar.Vehicle(vehicle_id, access['access_token']);
+    location = vehicle.location()
+    # new_access = client.exchange_refresh_token(access['refresh_token'])
+
+    return jsonify(location);
+
+"""
 #get's car info for a user based on the facebookID
 @app.route('/getUserCar', methods=['GET'])
 def getUserCar(facebookID):
@@ -109,8 +92,7 @@ def getUserCar(facebookID):
     else:
         return False;
 
-
-
+###
 #need to choose a car...
 @app.route('/addUserToDatabase', methods=['GET'])
 def addUserToDatabase(firstname, lastname, facebookID, carId):
@@ -123,16 +105,12 @@ def addUserToDatabase(firstname, lastname, facebookID, carId):
     #second table:
     SQlitetest.data_entry_user_info(firstname, lastname, facebookID, access['access_token'],
                                     access['refresh_token_expiration'])
-
+###
 @app.route('/getUserInfo', methods=['GET'])
 def getUserInfo(facebookID):
     return SQlitetest.user_info(facebookID) #JSON including user firstname, lastname, etc...
 
-
-
-
-
-"""
+###
 def get_fresh_access():
     access = load_access_from_database()
     if smartcar.expired(access['expiration']):
@@ -142,16 +120,9 @@ def get_fresh_access():
     else:
         return access
 
-
-
+###
 fresh_access_token = get_fresh_access()['access_token']
 """
 
-
-
-# 5. Let's start up the server at port 8000.
 if __name__ == '__main__':
     app.run(port=8000)
-
-
-
