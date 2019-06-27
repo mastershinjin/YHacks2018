@@ -62,16 +62,16 @@ def unlock(vehicle_id):
     vehicle = smartcar.Vehicle(vehicle_id, access['access_token'])
     response = vehicle.unlock()
 
-    return jsonify(response.status) # 200 if succesful
+    return jsonify(response) # 200 if succesful
 
 # htpp://localhost:8000/vehicle/<id>/lock
 @app.route('/vehicle/<vehicle_id>/lock', methods=['GET'])
-def unlock(vehicle_id):
+def lock(vehicle_id):
     global access
     vehicle = smartcar.Vehicle(vehicle_id, access['access_token'])
     response = vehicle.lock()
 
-    return jsonify(response.status) # 200 if succesful
+    return jsonify(response) # 200 if succesful
 
 # htpp://localhost:8000/vehicle/<id>/location
 @app.route('/vehicle/<vehicle_id>/location', methods=['GET'])
