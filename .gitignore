@@ -1,1 +1,6 @@
-.idea
+# ignoring files made during the hackathon
+idea
+__pycache__
+
+# app secrets
+instance
