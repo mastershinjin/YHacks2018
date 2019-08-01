@@ -1,4 +1,6 @@
-## Installation
+## Installation 
+
+Note: For windows users, make sure python and pip have been set as appropriate environment variables by modifying the "PATH" system variable before attempting to run any of these commands. You can do this by adding the system path to the python/python scripts package (something like "C:\Users\Python\Python37..." and "C:\Users\Python\Python37\Scripts").
 
 Inside the root directory, use the following command to install the **required** dependencies.
 
@@ -15,8 +17,12 @@ Create the instance directory and config file:
 ```bash
 $ mkdir instance && touch instance/config.py
 ```
+For windows users, use the following command:
+```bash
+$ mkdir instance &&  type nul > instance/config.py
+```
 
-Replace `config.py` with the following:
+Replace contents of `config.py` with the following:
 
 ```python
 # instance/config.py
@@ -34,3 +40,5 @@ Now we can access the configuration keys via:
 
 app.config["VAR_NAME"]
 ```
+
+
